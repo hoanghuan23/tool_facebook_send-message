@@ -1,0 +1,172 @@
+
+// src/lib/visa-data.ts
+
+const createSlug = (str: string) => {
+    if (!str) return '';
+    return str
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-.]+/g, '');
+};
+
+
+export interface VisaType {
+    name: string;
+    slug: string;
+    code: string;
+}
+
+export interface VisaDetail {
+    name: string;
+    slug: string;
+    code: string;
+}
+
+export const japanJobTypes: VisaType[] = [
+    { name: 'Thực tập sinh kỹ năng', slug: 'thuc-tap-sinh-ky-nang', code: '1.1' },
+    { name: 'Kỹ năng đặc định', slug: 'ky-nang-dac-dinh', code: '1.2' },
+    { name: 'Kỹ sư, tri thức', slug: 'ky-su-tri-thuc', code: '1.3' }
+];
+export const visaMapping = {
+    'thuc-tap-sinh-3-nam': 'Thực tập sinh 3 năm',
+    'thuc-tap-sinh-1-nam': 'Thực tập sinh 1 năm',
+    'thuc-tap-sinh-3-go': 'Thực tập sinh 3 Go',
+    'dac-dinh-dau-viet': 'Tokutei đầu Việt',
+    'dac-dinh-dau-nhat': 'Tokutei đầu Nhật',
+    'dac-dinh-di-moi': 'Tokutei đi mới',
+    'ky-su-tri-thuc-dau-viet': 'Kỹ sư, tri thức đầu Việt',
+    'ky-su-tri-thuc-dau-nhat': 'Kỹ sư, tri thức đầu Nhật'
+}
+export const visaDetailsByVisaType: { [key: string]: VisaDetail[] } = {
+    'thuc-tap-sinh-ky-nang': [
+        { name: 'Thực tập sinh 3 năm', slug: 'thuc-tap-sinh-3-nam', code: '1.1' },
+        { name: 'Thực tập sinh 1 năm', slug: 'thuc-tap-sinh-1-nam', code: '1.1' },
+        { name: 'Thực tập sinh 3 Go', slug: 'thuc-tap-sinh-3-go', code: '1.1' }
+    ],
+    'ky-nang-dac-dinh': [
+        { name: 'Đặc định đầu Việt', slug: 'dac-dinh-dau-viet', code: '1.2' },
+        { name: 'Đặc định đầu Nhật', slug: 'dac-dinh-dau-nhat', code: '1.2' },
+        { name: 'Đặc định đi mới', slug: 'dac-dinh-di-moi', code: '1.2' }
+    ],
+    'ky-su-tri-thuc': [
+        { name: 'Kỹ sư, tri thức đầu Việt', slug: 'ky-su-tri-thuc-dau-viet', code: '1.3' },
+        { name: 'Kỹ sư, tri thức đầu Nhật', slug: 'ky-su-tri-thuc-dau-nhat', code: '1.3' }
+    ]
+};
+
+export const conditionsByVisaDetail: { [key: string]: string[] } = {
+    'thuc-tap-sinh-3-nam': ['Tuyển gấp', 'Nhà xưởng', 'Ngoài trời', 'Làm trên cao', 'Cặp đôi', 'Yêu cầu bằng lái', 'Nhận tuổi cao', 'Việc nhẹ', 'Việc nặng', 'Nghỉ T7, CN', 'Không yêu cầu kinh nghiệm', 'Lương tốt', 'Tăng ca', 'Tăng lương định kỳ', 'Dễ cày tiền', 'Có thưởng', 'Nợ phí', 'Phí mềm', 'Công ty uy tín', 'Có người Việt', 'Đơn truyền thống', 'Bay nhanh', 'Trình cục sớm', 'Có bảng lương'],
+    'thuc-tap-sinh-1-nam': ['Tuyển gấp', 'Nhà xưởng', 'Ngoài trời', 'Làm trên cao', 'Cặp đôi', 'Yêu cầu bằng lái', 'Nhận tuổi cao', 'Việc nhẹ', 'Việc nặng', 'Nghỉ T7, CN', 'Không yêu cầu kinh nghiệm', 'Lương tốt', 'Tăng ca', 'Tăng lương định kỳ', 'Dễ cày tiền', 'Có thưởng', 'Nợ phí', 'Phí mềm', 'Công ty uy tín', 'Có người Việt', 'Đơn truyền thống', 'Bay nhanh', 'Trình cục sớm', 'Có bảng lương'],
+    'thuc-tap-sinh-3-go': ['Tuyển gấp', 'Nhà xưởng', 'Ngoài trời', 'Làm trên cao', 'Cặp đôi', 'Yêu cầu bằng lái', 'Nhận tuổi cao', 'Việc nhẹ', 'Việc nặng', 'Muốn về công ty trước khi ra visa', 'Muốn về công ty sau khi ra visa', 'Nghỉ T7, CN', 'Không yêu cầu kinh nghiệm', 'Lương tốt', 'Tăng ca', 'Tăng lương định kỳ', 'Dễ cày tiền', 'Có thưởng', 'Công ty uy tín', 'Có người Việt', 'Đơn truyền thống', 'Trình cục sớm', 'Có bảng lương'],
+    'dac-dinh-dau-nhat': ['Tuyển gấp', 'Nhóm ngành 1', 'Nhóm ngành 2', 'Nhà xưởng', 'Ngoài trời', 'Làm trên cao', 'Cặp đôi', 'Hỗ trợ Ginou 2', 'Yêu cầu bằng lái', 'Nhận tuổi cao', 'Việc nhẹ', 'Việc nặng', 'Muốn về công ty trước khi ra visa', 'Muốn về công ty sau khi ra visa', 'Nhận visa katsudo', 'Không nhận visa katsudo', 'Nghỉ T7, CN', 'Không yêu cầu kinh nghiệm', 'Nhân viên chính thức', 'Haken', 'Nhận visa gia đình', 'Nhận quay lại', 'Nhận tiếng yếu', 'Nhận trái ngành', 'Nhận thiếu giấy', 'Yêu cầu mặc Kimono', 'Lương tốt', 'Tăng ca', 'Tăng lương định kỳ', 'Dễ cày tiền', 'Có thưởng', 'Hỗ trợ chỗ ở', 'Hỗ trợ về công ty', 'Chưa vé', 'Có vé', 'Công ty uy tín', 'Có người Việt', 'Đơn truyền thống', 'Trình cục sớm', 'Có bảng lương'],
+    'dac-dinh-dau-viet': ['Tuyển gấp', 'Nhóm ngành 1', 'Nhóm ngành 2', 'Nhà xưởng', 'Ngoài trời', 'Làm trên cao', 'Cặp đôi', 'Hỗ trợ Ginou 2', 'Yêu cầu bằng lái', 'Nhận tuổi cao', 'Việc nhẹ', 'Việc nặng', 'Nhận visa katsudo', 'Không nhận visa katsudo', 'Nghỉ T7, CN', 'Không yêu cầu kinh nghiệm', 'Nhân viên chính thức', 'Haken', 'Nhận visa gia đình', 'Nhận quay lại', 'Nhận tiếng yếu', 'Nhận trái ngành', 'Nhận thiếu giấy', 'Yêu cầu mặc Kimono', 'Lương tốt', 'Tăng ca', 'Tăng lương định kỳ', 'Dễ cày tiền', 'Có thưởng', 'Nợ phí', 'Phí mềm', 'Hỗ trợ chỗ ở', 'Hỗ trợ về công ty', 'Chưa vé', 'Có vé', 'Công ty uy tín', 'Có người Việt', 'Đơn truyền thống', 'Bay nhanh', 'Trình cục sớm', 'Có bảng lương'],
+    'dac-dinh-di-moi': ['Tuyển gấp', 'Nhóm ngành 1', 'Nhóm ngành 2', 'Nhà xưởng', 'Ngoài trời', 'Làm trên cao', 'Cặp đôi', 'Hỗ trợ Ginou 2', 'Yêu cầu bằng lái', 'Nhận tuổi cao', 'Việc nhẹ', 'Việc nặng', 'Nhận visa katsudo', 'Không nhận visa katsudo', 'Nghỉ T7, CN', 'Không yêu cầu kinh nghiệm', 'Nhân viên chính thức', 'Haken', 'Nhận visa gia đình', 'Nhận quay lại', 'Nhận tiếng yếu', 'Nhận trái ngành', 'Nhận thiếu giấy', 'Yêu cầu mặc Kimono', 'Lương tốt', 'Tăng ca', 'Tăng lương định kỳ', 'Dễ cày tiền', 'Có thưởng', 'Nợ phí', 'Phí mềm', 'Hỗ trợ chỗ ở', 'Hỗ trợ về công ty', 'Chưa vé', 'Có vé', 'Công ty uy tín', 'Có người Việt', 'Đơn truyền thống', 'Bay nhanh', 'Trình cục sớm', 'Có bảng lương'],
+    'ky-su-tri-thuc-dau-nhat': ['Tuyển gấp', 'Nhà xưởng', 'Ngoài trời', 'Làm trên cao', 'Cặp đôi', 'Yêu cầu bằng lái', 'Nhận tuổi cao', 'Việc nhẹ', 'Việc nặng', 'Muốn về công ty trước khi ra visa', 'Muốn về công ty sau khi ra visa', 'Nghỉ T7, CN', 'Không yêu cầu kinh nghiệm', 'Nhân viên chính thức', 'Haken', 'Nhận visa gia đình', 'Nhận quay lại', 'Nhận tiếng yếu', 'Nhận trái ngành', 'Nhận thiếu giấy', 'Nhận nhiều loại bằng', 'Nhận bằng Senmon', 'Yêu cầu mặc Kimono', 'Lương tốt', 'Tăng ca', 'Tăng lương định kỳ', 'Dễ cày tiền', 'Có thưởng', 'Hỗ trợ chỗ ở', 'Hỗ trợ về công ty', 'Công ty uy tín', 'Có người Việt', 'Đơn truyền thống', 'Trình cục sớm', 'Có bảng lương'],
+    'ky-su-tri-thuc-dau-viet': ['Tuyển gấp', 'Nhà xưởng', 'Ngoài trời', 'Làm trên cao', 'Cặp đôi', 'Yêu cầu bằng lái', 'Nhận tuổi cao', 'Việc nhẹ', 'Việc nặng', 'Nghỉ T7, CN', 'Không yêu cầu kinh nghiệm', 'Nhân viên chính thức', 'Haken', 'Nhận visa gia đình', 'Nhận quay lại', 'Nhận tiếng yếu', 'Nhận trái ngành', 'Nhận thiếu giấy', 'Nhận nhiều loại bằng', 'Nhận bằng Senmon', 'Lương tốt', 'Tăng ca', 'Tăng lương định kỳ', 'Dễ cày tiền', 'Có thưởng', 'Nợ phí', 'Phí mềm', 'Hỗ trợ chỗ ở', 'Hỗ trợ về công ty', 'Chưa vé', 'Có vé', 'Công ty uy tín', 'Có người Việt', 'Đơn truyền thống', 'Bay nhanh', 'Trình cục sớm', 'Có bảng lương'],
+};
+
+export const allSpecialConditions = [...new Set(Object.values(conditionsByVisaDetail).flat())].map(name => ({ name, slug: createSlug(name) }));
+
+export const workShifts = [
+    { name: "Ca ngày (thường 08:00-17:00 hoặc 09:00-18:00)", slug: "ca-ngay" },
+    { name: "Ca chiều/tối (thường 16:00-24:00 hoặc 17:00-01:00)", slug: "ca-chieu-toi" },
+    { name: "Ca đêm (thường 24:00-08:00)", slug: "ca-dem" },
+    { name: "Ca luân phiên (chia ca sáng, chiều và đêm; luân phiên tuần tháng)", slug: "ca-luan-phien" },
+    { name: "Ca 2-2-3 (làm 2 ngày, nghỉ 2 ngày, làm 3 ngày và lặp lại)", slug: "ca-2-2-3" },
+    { name: "Ca 4-3-3 (làm 4 ngày, nghỉ 3 ngày và tiếp tục 3 ngày nghỉ)", slug: "ca-4-3-3" },
+    { name: "Nghỉ thứ 7, Chủ Nhật", slug: "nghi-t7-cn" },
+    { name: "Nghỉ định kỳ trong tuần", slug: "nghi-dinh-ky" },
+    { name: "Khác", slug: "khac" }
+];
+
+export const otherSkills = [
+    { name: "Có bằng lái xe AT", slug: "co-bang-lai-xe-at" },
+    { name: "Có bằng lái xe MT", slug: "co-bang-lai-xe-mt" },
+    { name: "Có bằng lái xe tải cỡ nhỏ", slug: "co-bang-lai-xe-tai-co-nho" },
+    { name: "Có bằng lái xe tải cỡ trung", slug: "co-bang-lai-xe-tai-co-trung" },
+    { name: "Có bằng lái xe tải cỡ lớn", slug: "co-bang-lai-xe-tai-co-lon" },
+    { name: "Có bằng lái xe buýt cỡ trung", slug: "co-bang-lai-xe-buyt-co-trung" },
+    { name: "Có bằng lái xe buýt cỡ lớn", slug: "co-bang-lai-xe-buyt-co-lon" },
+    { name: "Lái được máy xúc, máy đào", slug: "lai-duoc-may-xuc-may-dao" },
+    { name: "Lái được xe nâng", slug: "lai-duoc-xe-nang" },
+    { name: "Có bằng cầu", slug: "co-bang-cau" },
+    { name: "Vận hành máy CNC", slug: "van-hanh-may-cnc" },
+    { name: "Có bằng tiện, mài", slug: "co-bang-tien-mai" },
+    { name: "Có bằng hàn", slug: "co-bang-han" },
+    { name: "Có bằng cắt", slug: "co-bang-cat" },
+    { name: "Có bằng gia công kim loại", slug: "co-bang-gia-cong-kim-loai" },
+    { name: "Làm được giàn giáo", slug: "lam-duoc-gian-giao" },
+    { name: "Thi công nội thất", slug: "thi-cong-noi-that" },
+    { name: "Quản lý thi công xây dựng", slug: "quan-ly-thi-cong-xay-dung" },
+    { name: "Quản lý khối lượng xây dựng", slug: "quan-ly-khoi-luong-xay-dung" },
+    { name: "Thiết kế BIM xây dựng", slug: "thiet-ke-bim-xay-dung" },
+    { name: "Đọc được bản vẽ kỹ thuật", slug: "doc-duoc-ban-ve-ky-thuat" },
+    { name: "Có bằng thi công nội thất", slug: "co-bang-thi-cong-noi-that" }
+];
+
+export const dominantHands = [
+    { name: "Tất cả", slug: "all" },
+    { name: "Tay phải", slug: "tay-phai" },
+    { name: "Tay trái", slug: "tay-trai" },
+    { name: "Cả hai tay", slug: "ca-hai-tay" },
+];
+
+export const educationLevels = [
+    { name: "Tất cả", slug: "all" },
+    { name: "Không yêu cầu", slug: "khong-yeu-cau" },
+    { name: "Tốt nghiệp THPT", slug: "tot-nghiep-thpt" },
+    { name: "Tốt nghiệp Trung cấp", slug: "tot-nghiep-trung-cap" },
+    { name: "Tốt nghiệp Cao đẳng", slug: "tot-nghiep-cao-dang" },
+    { name: "Tốt nghiệp Đại học", slug: "tot-nghiep-dai-hoc" },
+    { name: "Tốt nghiệp Senmon", slug: "tot-nghiep-senmon" },
+];
+
+export const englishLevels = [
+    { name: 'TOEIC 900+', slug: 'toeic-900' },
+    { name: 'TOEIC 800+', slug: 'toeic-800' },
+    { name: 'TOEIC 700+', slug: 'toeic-700' },
+    { name: 'TOEIC 600+', slug: 'toeic-600' },
+    { name: 'TOEIC 500+', slug: 'toeic-500' },
+    { name: 'IELTS 7.0+', slug: 'ielts-7.0' },
+    { name: 'IELTS 6.0+', slug: 'ielts-6.0' },
+    { name: 'IELTS 5.0+', slug: 'ielts-5.0' },
+    { name: 'Giao tiếp tốt', slug: 'giao-tiep-tot' },
+    { name: 'Giao tiếp cơ bản', slug: 'giao-tiep-co-ban' },
+    { name: 'Không yêu cầu', slug: 'khong-yeu-cau' }
+];
+
+export const visionRequirements = [
+    { name: "Không yêu cầu", slug: "all" },
+    { name: "Yêu cầu thị lực tốt", slug: "yeu-cau-thi-luc-tot" },
+    { name: "Không mù màu", slug: "khong-mu-mau" },
+    { name: "20/20", slug: "20-20" },
+    { name: "10/10", slug: "10-10" },
+    { name: "8/10", slug: "8-10" }
+];
+
+export const tattooRequirements = [
+    { name: "Không yêu cầu", slug: "all" },
+    { name: "Không nhận hình xăm", slug: "khong-nhan-hinh-xam" },
+    { name: "Nhận xăm nhỏ (kín)", slug: "nhan-xam-nho-kin" },
+    { name: "Nhận cả xăm to (lộ)", slug: "nhan-ca-xam-to-lo" },
+];
+
+export const experienceYears: { name: string; slug: string }[] = [
+    { name: 'Không yêu cầu', slug: 'khong-yeu-cau' },
+    { name: 'Dưới 1 năm', slug: 'duoi-1-nam' },
+    { name: '1-2 năm', slug: '1-2-nam' },
+    { name: '2-3 năm', slug: '2-3-nam' },
+    { name: 'Trên 3 năm', slug: 'tren-3-nam' },
+    { name: '0,5 - 1 năm', slug: '0.5-1-nam' },
+    { name: '1 - 1,5 năm', slug: '1-1.5-nam' },
+    { name: '1,5 - 2 năm', slug: '1.5-2-nam' },
+    { name: '2 - 2,5 năm', slug: '2-2.5-nam' },
+    { name: '2,5 - 3 năm', slug: '2.5-3-nam' },
+    { name: '3 - 3,5 năm', slug: '3-3.5-nam' },
+    { name: '3,5 - 4 năm', slug: '3.5-4-nam' },
+    { name: '4 - 4,5 năm', slug: '4.5-5-nam' },
+    { name: 'Trên 5 năm', slug: 'tren-5-nam' }
+];

@@ -1,0 +1,112 @@
+[
+  {
+    "name": "JLPT N5",
+    "value": "N5",
+    "level": 5,
+    "slug": "jlpt-n5",
+    "groupCode": [
+      "TN"
+    ],
+    "type": "JLPT"
+  },
+  {
+    "name": "JLPT N4",
+    "value": "N4",
+    "level": 6,
+    "slug": "jlpt-n4",
+    "groupCode": [
+      "TN"
+    ],
+    "type": "JLPT"
+  },
+  {
+    "name": "JLPT N3",
+    "value": "N3",
+    "slug": "jlpt-n3",
+    "level": 7,
+    "groupCode": [
+      "TN"
+    ],
+    "type": "JLPT"
+  },
+  {
+    "name": "JLPT N2",
+    "value": "N2",
+    "slug": "jlpt-n2",
+    "level": 8,
+    "groupCode": [
+      "TN"
+    ],
+    "type": "JLPT"
+  },
+  {
+    "name": "JLPT N1",
+    "value": "N1",
+    "slug": "jlpt-n1",
+    "level": 9,
+    "groupCode": [
+      "TN"
+    ],
+    "type": "JLPT"
+  },
+  {
+    "name": "Kaiwa N5",
+    "value": "KN5",
+    "slug": "kaiwa-n5",
+    "level": 0,
+    "groupCode": [
+      "TN"
+    ],
+    "type": "Kaiwa"
+  },
+  {
+    "name": "Kaiwa N4",
+    "value": "KN4",
+    "slug": "kaiwa-n4",
+    "level": 1,
+    "groupCode": [
+      "TN"
+    ],
+    "type": "Kaiwa"
+  },
+  {
+    "name": "Kaiwa N3",
+    "value": "KN3",
+    "slug": "kaiwa-n3",
+    "level": 2,
+    "groupCode": [
+      "TN"
+    ],
+    "type": "Kaiwa"
+  },
+  {
+    "name": "Kaiwa N2",
+    "value": "KN2",
+    "slug": "kaiwa-n2",
+    "level": 3,
+    "groupCode": [
+      "TN"
+    ],
+    "type": "Kaiwa"
+  },
+  {
+    "name": "Kaiwa N1",
+    "value": "KN1",
+    "slug": "kaiwa-n1",
+    "level": 4,
+    "groupCode": [
+      "TN"
+    ],
+    "type": "Kaiwa"
+  },
+  {
+    "name": "Không yêu cầu tiếng",
+    "value": "TDN1",
+    "slug": "khong-yeu-cau-tieng",
+    "level": 10,
+    "groupCode": [
+      "TN"
+    ],
+    "type": "Không yêu cầu tiếng"
+  }
+]
