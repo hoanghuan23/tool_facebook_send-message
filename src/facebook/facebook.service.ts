@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { chromium, Browser, Page } from 'playwright';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { join } from 'path';
-import { RecruitmentService } from 'src/recruitment/recruitment.service';
+import { Browser, chromium, Page } from 'playwright';
+import { SheetsService } from 'src/ggsheet/sheets.service';
+import { updateCandidateStatus } from 'src/ggsheet/update';
 import { JobService } from 'src/job/job.service';
 import { getBufferFromBlobUrl } from 'src/lib/utils';
-import { SheetsService } from 'src/ggsheet/sheets.service';
 import { getCandidatesByPostedDate } from 'src/opensearch/post-opensearch';
+import { RecruitmentService } from 'src/recruitment/recruitment.service';
 
 const SPREADSHEET_ID = '1rhoX1vD9X8BmGokiXzirSSenaXy9zGMXzZlzDnZu4eE';
 
@@ -89,6 +89,10 @@ export class FacebookService {
 
         let id = '';
 
+        if (!link.includes('facebook.com')) {
+          return;
+        }
+
         if (link.includes('profile.php?id=')) {
           id = link.split('profile.php?id=')[1].split('#')[0];
         } else {
@@ -96,9 +100,10 @@ export class FacebookService {
         }
 
         return {
+          _id: r._id,
           profileLink: `https://www.facebook.com/messages/t/${id}`,
           searchLink: r.searchLink,
-        }
+        };
       });
 
     // Lặp qua từng ứng viên của nick facebook này
@@ -108,15 +113,15 @@ export class FacebookService {
           await page.goto(candidateRow.profileLink, {
             waitUntil: 'domcontentloaded',
           });
-          await this.sleep(20000);
+          await this.sleep(15000);
 
           // nhập 000000
           // await page.keyboard.type('210604', { delay: 500 });
-          // // await page.keyboard.type('000000', { delay: 1000 });
-          // await this.sleep(5000);
+          // // // await page.keyboard.type('000000', { delay: 1000 });
+          // await this.sleep(10000);
 
           await page.getByRole('button', { name: 'Tiếp tục' }).click();
-          await this.sleep(5000);
+          await this.sleep(10000);
 
           const searchInput = await page.waitForSelector(
             'div[aria-label="Tin nhắn"]',
@@ -172,8 +177,10 @@ export class FacebookService {
           await this.submitChat(page, 'Em ơi có đơn mới này, em xem ok không');
           await this.sleep(1200);
 
+          // Update trạng thái trong opensearch của những ứng viên đã gửi
+          await updateCandidateStatus(candidateRow._id, 'APPROACHED');
+
           // LƯU Ý: cần lưu lại thông tin lastViewedTime vào sheet và OpenSearch để lần sau gửi sẽ lọc ra những đơn mới hơn
-          //   await this.updateLastViewedTime.upadte(SPREADSHEET_ID);
         } catch (error) {
           console.error(error);
         }

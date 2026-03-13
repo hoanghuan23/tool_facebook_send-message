@@ -6,7 +6,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const rows = await getCandidatesByPostedDate(1768064401);
-  console.log(rows.slice(0, 2));
+  // số lượng ứng viên
+  console.log('Tổng số ứng viên:', rows.length);
+  
 
   await app.listen(process.env.PORT ?? 3001);
 }

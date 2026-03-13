@@ -17,7 +17,7 @@ import { SheetsService } from './ggsheet/sheets.service';
   ],
   controllers: [AppController],
   providers: [AppService,
-    // FacebookService,
+    FacebookService,
     OpenSearchUtils,
     JobService,
     RecruitmentService,
