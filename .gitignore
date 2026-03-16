@@ -62,3 +62,5 @@ service-account.json
 facebook_cookies_01.json
 facebook_cookies_02.json
 facebook_cookies_03.json
+
+app.modules.ts

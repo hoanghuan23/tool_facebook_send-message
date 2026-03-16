@@ -1,4 +1,8 @@
-export async function getCandidatesByPostedDate(postedDate: number) {
+export async function getCandidatesByPostedDate(
+  postedDate: number,
+  from = 0,
+  size = 1000,
+) {
   const res = await fetch(
     'https://os.hellojob.jp/hellojobv5-recruitment-crawled/_search',
     {
@@ -12,7 +16,8 @@ export async function getCandidatesByPostedDate(postedDate: number) {
           ).toString('base64'),
       },
       body: JSON.stringify({
-        size: 1000,
+        from,
+        size,
         query: {
           bool: {
             must: [
@@ -25,7 +30,6 @@ export async function getCandidatesByPostedDate(postedDate: number) {
       }),
     },
   );
-  
 
   if (!res.ok) {
     throw new Error(
@@ -33,9 +37,8 @@ export async function getCandidatesByPostedDate(postedDate: number) {
     );
   }
 
-  // slice(0, 10) giới hạn lấy 10 ứng viên
   const data = await res.json();
-  return data.hits.hits.slice(0, 15).map((item) => ({
+  return data.hits.hits.map((item) => ({
     _id: item._id,
     ...item._source,
   }));

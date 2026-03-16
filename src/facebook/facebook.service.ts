@@ -10,7 +10,6 @@ import { getCandidatesByPostedDate } from 'src/opensearch/post-opensearch';
 import { RecruitmentService } from 'src/recruitment/recruitment.service';
 
 const SPREADSHEET_ID = '1rhoX1vD9X8BmGokiXzirSSenaXy9zGMXzZlzDnZu4eE';
-
 @Injectable()
 export class FacebookService {
   constructor(
@@ -81,111 +80,136 @@ export class FacebookService {
     //   },
     // ];
 
-    const rows = await getCandidatesByPostedDate(1768064401);
-    const candidateRows = rows
-      .filter((r) => r.senderLink && r.searchLink)
-      .map((r) => {
-        const link = r.senderLink;
+    const BATCH_SIZE = 10;
+    const POSTED_DATE = 1768064400;
+    let from = 0;
 
-        let id = '';
+    // Lặp xử lý từng batch 10 ứng viên, không bị trùng ID
+    while (true) {
+      const rows = await getCandidatesByPostedDate(POSTED_DATE, from, BATCH_SIZE);
 
-        if (!link.includes('facebook.com')) {
-          return;
-        }
+      const candidateRows = rows
+        .filter((r) => r && r.senderLink && r.searchLink)
+        .map((r) => {
+          const link = r.senderLink;
 
-        if (link.includes('profile.php?id=')) {
-          id = link.split('profile.php?id=')[1].split('#')[0];
-        } else {
-          id = link.split('facebook.com/')[1].split('#')[0].split('?')[0];
-        }
+          if (!link.includes('facebook.com')) return null;
 
-        return {
-          _id: r._id,
-          profileLink: `https://www.facebook.com/messages/t/${id}`,
-          searchLink: r.searchLink,
-        };
-      });
-
-    // Lặp qua từng ứng viên của nick facebook này
-    candidateRows.forEach(async (candidateRow) => {
-      context.newPage().then(async (page) => {
-        try {
-          await page.goto(candidateRow.profileLink, {
-            waitUntil: 'domcontentloaded',
-          });
-          await this.sleep(15000);
-
-          // nhập 000000
-          // await page.keyboard.type('210604', { delay: 500 });
-          // // // await page.keyboard.type('000000', { delay: 1000 });
-          // await this.sleep(10000);
-
-          await page.getByRole('button', { name: 'Tiếp tục' }).click();
-          await this.sleep(10000);
-
-          const searchInput = await page.waitForSelector(
-            'div[aria-label="Tin nhắn"]',
-          );
-          await this.sleep(1000);
-
-          await searchInput?.click();
-
-          await page.keyboard.press('Control+A');
-          await page.keyboard.press('Backspace');
-
-          // Lấy những đơn phù hợp dựa vào searchLink
-          const matchingJobs =
-            await this.jobService.findMatchingJobs(candidateRow);
-
-          for (const job of matchingJobs) {
-            // Gửi ảnh form đơn
-            let tempPath: string | null = null;
-            try {
-              const blob = await this.jobService.getJobFormImage(
-                job.formImageHJ,
-              );
-              const imageBuffer = await getBufferFromBlobUrl(blob);
-
-              tempPath = path.join(
-                process.cwd(),
-                `temp_upload_${Date.now()}.png`,
-              );
-
-              fs.writeFileSync(tempPath, imageBuffer);
-
-              await this.uploadImageProperly(page, tempPath);
-              await this.sleep(1000);
-            } catch (e) {
-              console.error('Lỗi khi xử lý ảnh:', e);
-            } finally {
-              if (tempPath && fs.existsSync(tempPath)) {
-                fs.unlinkSync(tempPath);
-              }
-            }
-            // gửi mô tả đơn
-            const aiContent = job.aiContent;
-            await this.submitChat(page, aiContent);
-            await this.sleep(2000);
-            // gửi link đơn
-            await this.submitChat(
-              page,
-              `https://vi.hellojob.jp/${job.nameAscii}.html`,
-            );
-            await this.sleep(5000);
+          let id = '';
+          if (link.includes('profile.php?id=')) {
+            id = link.split('profile.php?id=')[1].split('#')[0];
+          } else {
+            id = link.split('facebook.com/')[1].split('#')[0].split('?')[0];
           }
 
-          await this.submitChat(page, 'Em ơi có đơn mới này, em xem ok không');
-          await this.sleep(1200);
+          return {
+            _id: r._id,
+            profileLink: `https://www.facebook.com/messages/t/${id}`,
+            searchLink: r.searchLink,
+            lastViewedTime: r.lastViewedTime ?? null,
+          };
+        })
+        .filter(Boolean);
 
-          // Update trạng thái trong opensearch của những ứng viên đã gửi
-          await updateCandidateStatus(candidateRow._id, 'APPROACHED');
+      if (candidateRows.length === 0) {
+        console.log(`--- Đã xử lý hết ứng viên (from=${from}) ---`);
+        break;
+      }
 
-          // LƯU Ý: cần lưu lại thông tin lastViewedTime vào sheet và OpenSearch để lần sau gửi sẽ lọc ra những đơn mới hơn
-        } catch (error) {
-          console.error(error);
-        }
-      });
-    });
+      console.log(
+        `--- Đang xử lý batch from=${from}, size=${candidateRows.length} ---`,
+      );
+
+      // Xử lý song song tất cả ứng viên trong batch, chờ hết batch mới sang batch tiếp
+      await Promise.all(
+        candidateRows.map(async (candidateRow) => {
+          const page = await context.newPage();
+          try {
+            await page.goto(candidateRow.profileLink, {
+              waitUntil: 'domcontentloaded',
+            });
+            await this.sleep(15000);
+
+            await page.getByRole('button', { name: 'Tiếp tục' }).click();
+            await this.sleep(10000);
+
+            const searchInput = await page.waitForSelector(
+              'div[aria-label="Tin nhắn"]',
+            );
+            await this.sleep(1000);
+
+            await searchInput?.click();
+
+            await page.keyboard.press('Control+A');
+            await page.keyboard.press('Backspace');
+
+            // Lấy những đơn phù hợp dựa vào searchLink
+            const matchingJobs =
+              await this.jobService.findMatchingJobs(candidateRow);
+
+            let hasSentAnyJob = false;
+
+            for (const job of matchingJobs) {
+              let tempPath: string | null = null;
+              try {
+                const blob = await this.jobService.getJobFormImage(
+                  job.formImageHJ,
+                );
+                const imageBuffer = await getBufferFromBlobUrl(blob);
+
+                tempPath = path.join(
+                  process.cwd(),
+                  `temp_upload_${Date.now()}.png`,
+                );
+
+                fs.writeFileSync(tempPath, imageBuffer);
+
+                await this.uploadImageProperly(page, tempPath);
+                await this.sleep(1000);
+              } catch (e) {
+                console.error('Lỗi khi xử lý ảnh:', e);
+              } finally {
+                if (tempPath && fs.existsSync(tempPath)) {
+                  fs.unlinkSync(tempPath);
+                }
+              }
+              const aiContent = job.aiContent;
+              await this.submitChat(page, aiContent);
+              await this.sleep(2000);
+              await this.submitChat(
+                page,
+                `https://vi.hellojob.jp/${job.nameAscii}.html`,
+              );
+              await this.sleep(5000);
+              hasSentAnyJob = true;
+            }
+
+            if (hasSentAnyJob) {
+              await this.submitChat(
+                page,
+                'Em ơi có đơn mới này, em xem ok không',
+              );
+              await this.sleep(1200);
+
+              // Update trạng thái trong opensearch của những ứng viên đã gửi
+              await updateCandidateStatus(candidateRow._id, 'APPROACHED');
+            } else {
+              console.log(`Không có đơn phù hợp cho ứng viên ${candidateRow._id}`);
+            }
+          } catch (error) {
+            console.error(
+              `Lỗi ứng viên ${candidateRow._id}:`,
+              error,
+            );
+          } finally {
+            await page.close();
+          }
+        }),
+      );
+
+      // Tăng offset để lấy batch tiếp theo, không trùng ID
+      from += BATCH_SIZE;
+    }
   }
 
   private async submitChat(page: Page, message: string) {
