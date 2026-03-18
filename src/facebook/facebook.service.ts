@@ -86,7 +86,11 @@ export class FacebookService {
 
     // Lặp xử lý từng batch 10 ứng viên, không bị trùng ID
     while (true) {
-      const rows = await getCandidatesByPostedDate(POSTED_DATE, from, BATCH_SIZE);
+      const rows = await getCandidatesByPostedDate(
+        POSTED_DATE,
+        from,
+        BATCH_SIZE,
+      );
 
       const candidateRows = rows
         .filter((r) => r && r.senderLink && r.searchLink)
@@ -130,12 +134,36 @@ export class FacebookService {
             });
             await this.sleep(15000);
 
-            await page.getByRole('button', { name: 'Tiếp tục' }).click();
+            // await page.getByRole('button', { name: 'Tiếp tục' }).click();
+            const continueButton = page.getByRole('button', {
+              name: 'Tiếp tục',
+            });
+
+            try {
+              await continueButton
+                .first()
+                .waitFor({ state: 'visible', timeout: 5000 });
+            } catch {
+              console.log(
+                `Không tìm thấy nút Tiếp tục cho ứng viên ${candidateRow._id}, bỏ qua.`,
+              );
+              return;
+            }
+
+            await continueButton.first().click();
             await this.sleep(10000);
 
-            const searchInput = await page.waitForSelector(
-              'div[aria-label="Tin nhắn"]',
-            );
+            const searchInput = page.locator('div[aria-label="Tin nhắn"]');
+
+            try {
+              await searchInput.waitFor({ state: 'visible', timeout: 5000 });
+            } catch {
+              console.log(
+                `Không tìm thấy ô nhập tin nhắn cho ứng viên ${candidateRow._id}, bỏ qua.`,
+              );
+              return;
+            }
+
             await this.sleep(1000);
 
             await searchInput?.click();
@@ -194,13 +222,12 @@ export class FacebookService {
               // Update trạng thái trong opensearch của những ứng viên đã gửi
               await updateCandidateStatus(candidateRow._id, 'APPROACHED');
             } else {
-              console.log(`Không có đơn phù hợp cho ứng viên ${candidateRow._id}`);
+              console.log(
+                `Không có đơn phù hợp cho ứng viên ${candidateRow._id}`,
+              );
             }
           } catch (error) {
-            console.error(
-              `Lỗi ứng viên ${candidateRow._id}:`,
-              error,
-            );
+            console.error(`Lỗi ứng viên ${candidateRow._id}:`, error);
           } finally {
             await page.close();
           }
