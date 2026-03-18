@@ -24,6 +24,7 @@ export async function getCandidatesByPostedDate(
               { term: { postedDate } },
               { terms: { 'statusJourney.keyword': ['NEW', 'APPROACHED'] } },
             ],
+            must_not: [{ term: { isDeleted: true } }],
           },
         },
         sort: [{ createdDate: { order: 'desc' } }],

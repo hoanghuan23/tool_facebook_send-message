@@ -1,5 +1,3 @@
-
-
 export async function updateCandidateStatus(id: string, status: string) {
   const res = await fetch(
     `https://os.hellojob.jp/hellojobv5-recruitment-crawled/_update/${id}`,
@@ -10,7 +8,7 @@ export async function updateCandidateStatus(id: string, status: string) {
         Authorization:
           'Basic ' +
           Buffer.from(
-            `${process.env.ELASTICSEARCH_USERNAME}:${process.env.ELASTICSEARCH_PASSWORD}`
+            `${process.env.ELASTICSEARCH_USERNAME}:${process.env.ELASTICSEARCH_PASSWORD}`,
           ).toString('base64'),
       },
       body: JSON.stringify({
@@ -19,7 +17,7 @@ export async function updateCandidateStatus(id: string, status: string) {
           lastViewedTime: Date.now(),
         },
       }),
-    }
+    },
   );
 
   if (!res.ok) {
