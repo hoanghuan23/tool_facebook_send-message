@@ -14,16 +14,13 @@ export class SheetsService {
     const doc = new GoogleSpreadsheet(SPREADSHEET_ID, auth);
 
     await doc.loadInfo();
-    const sheet = doc.sheetsByTitle['3. Ứng viên'];
     const sheet1 = doc.sheetsByTitle['2. Tài khoản FB'];
 
-    const rows = await sheet.getRows();
     const rows1 = await sheet1.getRows();
 
     // return rows.map(r => r.toObject());
 
     return {
-      ungVien: rows.map((r) => r.toObject()),
       taiKhoanFB: rows1.map((r) => r.toObject()),
     };
   }

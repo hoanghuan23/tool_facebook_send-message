@@ -1,5 +1,6 @@
 export async function getCandidatesByPostedDate(
   postedDate: number,
+  id_ctv: string,
   from = 0,
   size = 1000,
 ) {
@@ -21,8 +22,9 @@ export async function getCandidatesByPostedDate(
         query: {
           bool: {
             must: [
-              { term: { postedDate } },
+              { term: { postedDate: postedDate } },
               { terms: { 'statusJourney.keyword': ['NEW', 'APPROACHED'] } },
+              { term: { "broker.id.keyword": id_ctv } },
             ],
             must_not: [{ term: { isDeleted: true } }],
           },

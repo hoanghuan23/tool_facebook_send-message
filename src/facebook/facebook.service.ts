@@ -81,13 +81,15 @@ export class FacebookService {
     // ];
 
     const BATCH_SIZE = 10;
-    const POSTED_DATE = 1768064400;
+    const POSTED_DATE = 1773904504;
+    const id_ctv = 'BR_1767758676570';
     let from = 0;
 
     // Lặp xử lý từng batch 10 ứng viên, không bị trùng ID
     while (true) {
       const rows = await getCandidatesByPostedDate(
         POSTED_DATE,
+        id_ctv,
         from,
         BATCH_SIZE,
       );
@@ -132,7 +134,7 @@ export class FacebookService {
             await page.goto(candidateRow.profileLink, {
               waitUntil: 'domcontentloaded',
             });
-            await this.sleep(15000);
+            await this.sleep(30000);
 
             // await page.getByRole('button', { name: 'Tiếp tục' }).click();
             const continueButton = page.getByRole('button', {
